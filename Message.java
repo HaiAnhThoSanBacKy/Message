@@ -1,97 +1,117 @@
 import java.util.Scanner;
-
-class MessageSystem {
-    private static final int MAX_MESSAGE_LENGTH = 250;
-    private Queue<String> messageQueue;
-    private Stack<String> messageStack;
-
-    public MessageSystem() {
-        this.messageQueue = new Queue<>(5); // Kích thước hàng đợi mặc định là 5
-        this.messageStack = new Stack<>(5); // Kích thước ngăn xếp mặc định là 5
+//tao mang
+class Stack {
+    private int maxSize;
+    private String[] stackArray;
+    private int top;
+// constructor
+    public Stack(int size) {
+        maxSize = size;
+        stackArray = new String[maxSize];
+        top = -1;
     }
-
-    public void interactWithUser() {
-        Scanner scanner = new Scanner(System.in);
-
-        try {
-            for (int i = 0; i < 5; i++) {
-                // Cho phép người dùng nhập tin nhắn và kiểm tra tính hợp lệ
-                System.out.print("Enter a message (max 250 characters): ");
-                String userMessage = scanner.nextLine();
-
-                if (isValidMessage(userMessage)) {
-                    // Nếu tin nhắn hợp lệ, thêm vào hàng đợi và hiển thị thông báo
-                    enqueueMessage(userMessage);
-                    System.out.println("Message sent successfully!");
-                } else {
-                    // Nếu tin nhắn không hợp lệ, hiển thị thông báo lỗi
-                    throw new IllegalArgumentException("Error: Invalid message. Message not sent.");
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            scanner.close();
+// day vao stack
+    public void push(String value) {
+       //
+       if (top < maxSize - 1) {
+            stackArray[++top] = value;
+        } else {
+            System.out.println("Error: Stack overflow. Cannot push message: " + value);
         }
     }
-
-    private void enqueueMessage(String message) {
-        messageQueue.enqueue(message);
-        System.out.println("Enqueued message: " + message);
-    }
-
-    public void processMessages() {
-        try {
-            while (!messageQueue.isEmpty()) {
-                String message = messageQueue.dequeue();
-                pushToStack(message);
-                System.out.println("Processing message: " + message);
-            }
-        } catch (QueueEmptyException e) {
-            System.out.println("Error: " + e.getMessage());
+// hien thi stack
+    public String pop() {
+        if (top >= 0) {  //
+            return stackArray[top--];                                           
+        } else {
+            System.out.println("Error: Stack underflow. Stack is empty.");    
+            return null;
         }
     }
-
-    private void pushToStack(String message) {
-        try {
-            messageStack.push(message);
-        } catch (StackOverflowException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
-
-    public void displayProcessedMessages() {
-        try {
-            System.out.println("Processed messages:");
-            while (!messageStack.isEmpty()) {
-                String processedMessage = messageStack.pop();
-                System.out.println(processedMessage);
-            }
-        } catch (StackEmptyException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
-
-    private boolean isValidMessage(String message) {
-        if (message == null || message.trim().isEmpty()) {
-            return false;
-        }
-
-        return message.length() <= MAX_MESSAGE_LENGTH;
+//ktra 
+    public boolean isEmpty() {
+        return top == -1;
     }
 }
 
-// (Các class và ngoại lệ khác giữ nguyên)
+class Queue { //tao mang queue
+    private int maxSize;
+    private String[] queueArray;      
+    private int front;
+    private int rear;
+    private int size;
+    //constructor
+    public Queue(int size) {
+        maxSize = size;                    
+        queueArray = new String[maxSize];
+        front = 0;                             
+        rear = -1;                              
+        size = 0;                               
+    }
+//enterqueue
+    public void enqueue(String value) {
+        if (size < maxSize) {                         
+            if (rear == maxSize - 1) {                 
+                rear = -1;
+            }
+            queueArray[++rear] = value;
+            size++;
+        } else {
+            System.out.println("Error: Queue is full. Cannot enqueue message: " + value);  
+        }
+    }
+//deletequeue
+    public String dequeue() {
+        if (size > 0) {                                               
+            String temp = queueArray[front++];
+            if (front == maxSize) {                                  
+                front = 0;                                          
+            }
+            size--;
+            return temp;
+        } else {
+            System.out.println("Error: Queue is empty. Cannot dequeue message.");  
+            return null;
+        }
+    }
 
-public class MessageSystemApp {
+    public boolean isEmpty() {
+        return size == 0;
+    }
+}
+//queue and stack
+public class Message {
     public static void main(String[] args) {
-        MessageSystem messageSystem = new MessageSystem();
+        int maxSize = 10; 
+        Queue queueClass = new Queue(maxSize);   
+        Stack classStack = new Stack(maxSize);   
+        Scanner scanner = new Scanner(System.in);  
 
-        // Thực hiện thử nghiệm với người dùng nhập và gửi tin nhắn
-        messageSystem.interactWithUser();
+        // them tin nhan tu ban phim
+        System.out.println("Enter messages (press 'end' to stop the program):");
+        String userInput;      
+        while (!(userInput = scanner.nextLine()).equals("end")) {        
+            if (userInput.length() <= 250) {
+                queueClass.enqueue(userInput);
+            } else {
+                System.out.println("Error: Message exceeds 250 characters limit."
+                        + " Please enter a shorter message.");
+            }
+        }
 
-        // Xử lý và hiển thị tin nhắn đã xử lý
-        messageSystem.processMessages();
-        messageSystem.displayProcessedMessages();
+        // dequeue du lieu den khi empty
+        while (!queueClass.isEmpty()) {              
+            String message = queueClass.dequeue();
+            if (message != null) {
+                classStack.push(message);
+            }
+        }
+
+        // lay du lieu den khi stack empty
+        while (!classStack.isEmpty()) {
+            System.out.println("Message in stack: " + classStack.pop());   
+        }
+
+        scanner.close();
     }
 }
